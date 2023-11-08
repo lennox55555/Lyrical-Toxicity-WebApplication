@@ -1,33 +1,38 @@
 import json
 import requests
 import lyricsgenius as lg
-from datetime import datetime, timedelta
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import re
 
 
 
 def lambda_handler(event, context):
     try:
-        # Extracting queryStringParameters and defaulting to None if not found
+        #  queryStringParameters 
         song = event.get('queryStringParameters', {}).get('song', None)
+        
         album = event.get('queryStringParameters', {}).get('album', None)
+        
         artist = event.get('queryStringParameters', {}).get('artist', None)
+        
         func = event.get('queryStringParameters', {}).get('func', None)
         
-        # Check if all parameters are provided and if album and artist are not None
+        # check if api was passed a param
         if func is None:
             return {
                 'statusCode': 400,
                 'body': json.dumps({'message': 'Missing parameters'})
             }
         
-        # Convert to string if not None
+        # ensure params are strings
         song = str(song) if song is not None else None
+        
         album = str(album) if album is not None else None
+        
         artist = str(artist)
 
+
+        # based on func param and no null values calls specified function
         if func == 'songSentiment':
             if song is None:
                 return {
@@ -43,16 +48,19 @@ def lambda_handler(event, context):
                 }
             result = albumSentiment(album, artist)
         elif func == 'artistSentiment':
+            if artist is None:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'message': 'Missing album parameter for albumSentiment'})
+                }
             result = artistSentiment(artist)
-        elif func == 'wokeConnection':
-            result = wokeConnection(song, artist)
         else:
             return {
                 'statusCode': 400,
                 'body': json.dumps({'message': 'Invalid operation'})
             }
 
-        # Create response body
+        # body
         res_body = {
             'song': song,
             'album': album,
@@ -61,7 +69,7 @@ def lambda_handler(event, context):
             'ans': result
         }
 
-        # Create HTTP response
+        # http res
         http_res = {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json'},
@@ -76,58 +84,138 @@ def lambda_handler(event, context):
             'body': json.dumps({'message': str(e)})
         }
 
+
+
 def songSentiment(song, artist):
-    #genius access
+    
+    client_id = 'fc5e07f18cd74c7581d593b7d5790e3d'
+    
+    client_secret = '7ed2f139d7044c0b8d0ef50bb6835d64'
+
+    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+    
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+
+
+    results = sp.search(q=f'track:{song} artist:{artist}', type='track')
+    
     genius = lg.Genius('rp2cHbcKjKMS5h5oa2o1T8Wpg1ZpPk9qvvT5CnBEInnGDbo1TZ1UvnGJKR5oiNs4')
-    #get lyrics of song and artist
-    song1 = genius.search_song(str(song)+ " " + str(artist))
-    return song1.lyrics
+   
+    song1 = genius.search_song(song+ " " + artist)
+    
+    listOfRequest = []
+    
+    if results and results['tracks']['items']:
+        track = results['tracks']['items'][0]
+    
+        track_name = track['name']
+        
+        listOfRequest.append(song)
+        
+        artist_name = ', '.join([artist['name'] for artist in track['artists']])
+        
+        listOfRequest.append(artist_name)
+        
+        track_image_url = track['album']['images'][0]['url']
+        
+        listOfRequest.append(track_image_url)
+        
+        listOfRequest.append(song1.lyrics)
+    
+        return listOfRequest
+        
+    else:
+        
+        return "Could Not Find Song"
+    
 
 def albumSentiment(album_name, artist):
     client_credentials_manager = SpotifyClientCredentials(client_id='fc5e07f18cd74c7581d593b7d5790e3d', client_secret='7ed2f139d7044c0b8d0ef50bb6835d64')
+    
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-    # Search for the album by name and artist
     results = sp.search(q=f"album:{album_name} artist:{artist}", type='album')
 
+    listOfRequest = []
+    
     if results and results['albums']['items']:
-        # Get the album ID from the first item in the 'items' list of the 'albums' key in the 'results' dictionary.
+        
         album_id = results['albums']['items'][0]['id']
 
-        # Retrieve the tracks of the album using the Spotify API, given the album ID.
+        album_info = sp.album(album_id)
+        
+        album_image_url = album_info['images'][0]['url']
+        
+        album_artists = [artist['name'] for artist in album_info['artists']]
+        
+        listOfRequest.append(album_artists)
+        
+        listOfRequest.append(album_name)
+        
+        listOfRequest.append(album_image_url)
+
         album_tracks = sp.album_tracks(album_id)
         
-        # Create a list of song names by iterating through the 'items' list in the 'album_tracks' dictionary
         songs = [track['name'] for track in album_tracks['items']]
-        allLyrics = []
-        genius = lg.Genius('rp2cHbcKjKMS5h5oa2o1T8Wpg1ZpPk9qvvT5CnBEInnGDbo1TZ1UvnGJKR5oiNs4')
-        for i in range(4,6):
-            lyrics = genius.search_song(songs[i], artist)
-            allLyrics.append(lyrics.lyrics)
         
-        return allLyrics
+        listOfRequest.append(songs)
+        
+        return listOfRequest
     else:
-        return [] 
+        return "Could Not Find Album"
+
+
+
 
 def artistSentiment(artist):
-    client_credentials_manager = SpotifyClientCredentials(client_id='fc5e07f18cd74c7581d593b7d5790e3d', client_secret='7ed2f139d7044c0b8d0ef50bb6835d64')
+    client_id = 'fc5e07f18cd74c7581d593b7d5790e3d'
+    
+    client_secret = '7ed2f139d7044c0b8d0ef50bb6835d64'
+
+    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+    
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-    # Search for the artist by name
     results = sp.search(q=f'artist:{artist}', type='artist')
 
+    listOfRequest = []
+    
+    listOfRequest.append(artist)
+
     if results and results['artists']['items']:
-        # Get the artist ID from the first item in the 'items' list of the 'artists' key in the 'results' dictionary.
-        artist_id = results['artists']['items'][0]['id']
+        
+        artist = results['artists']['items'][0]
+        
+        artist = results['artists']['items'][0]
+    
+        followers = artist["followers"]["total"]
+    
+        listOfRequest.append(followers)
+    
+        genre = artist["genres"]
+    
+        listOfRequest.append(genre)
+    
+        url = artist["images"][0]["url"]
+    
+        listOfRequest.append(url)
+    
+        top_tracks = sp.artist_top_tracks(artist["id"])
+        
+        track_list = []
 
-        # Retrieve the top tracks of the artist using the Spotify API, given the artist ID.
-        top_tracks = sp.artist_top_tracks(artist_id)
+        for track in top_tracks['tracks']:
+            song_name = track['name']
+            
+            preview_url = track['preview_url']
+            
+            track_tuple = (song_name, preview_url)
+            
+            track_list.append(track_tuple)
+    
+        return listOfRequest + track_list
 
-        # Create a list of track names by iterating through the 'tracks' key in the 'top_tracks' dictionary
-        songs = [track['name'] for track in top_tracks['tracks']]
-
-        return songs
     else:
-        return []
+        return "Artist not found."
 
     
