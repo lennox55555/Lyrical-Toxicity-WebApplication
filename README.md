@@ -8,6 +8,9 @@
 
 #### Whether you're seeking insights into a beloved song, an artist's entire discography, or in-depth artist profiles, this application empowers users to make informed decisions and explore music in a whole new way.
 
+
+
+
 # Music Sentiment API Documentation
 ### Base URI: https://yajjcjryrg7vfihndc4vxv5hve0pljlx.lambda-url.us-east-1.on.aws
 
