@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expand Sections on Interaction</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="section request" id="requestSection">
+        <h2>Step 1 (Choose a Request)</h2>
+        <form id="myForm">
+            <select name="dropdown" id="dropdown" onchange="selectOption()">
+                <option value="songSentiment">Song Sentiment</option>
+                <option value="albumSentiment">Album Sentiment</option>
+                <option value="artistSentiment">Artist Sentiment</option>
+            </select>
+            <input id="enter" type="submit" value="Next Step" onclick="expandSection('parameters'); selectOption()">
+        </form>
+    </div>
+    <div class="section parameters">
+        <h2>Step 2 (Insert Parameters)</h2>
+        <div id="inputFields"></div>
+        <button onclick="expandSection('result'); apiRequest()">Get Results</button>
+
+
+    </div>
+    <div class="section result">
+        <h2>Step 3 (Result)</h2>
+        <h1 id="title"></h1>
+        <h2 id="subtitle"></h2>
+        <p id="body"></p>
+        <div id="songList">
+        </div>
+        <div id="image-container"></div>
+        <button onclick="refreshPage()">Refresh Page</button>
+    </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
