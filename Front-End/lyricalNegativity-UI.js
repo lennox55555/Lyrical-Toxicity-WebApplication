@@ -10,15 +10,24 @@ class LyricalNegativityUI {
     }
 
     advanceToPanel2 = () => {
-        this.updatePanelFlex([1, 10, 1]);
-        this.toggleDisplay(['none', 'block', 'none']);
+        this.updatePanelFlex([1, 20, 1]);
+        this.toggleDisplay(['none', 'flex', 'none']);
+        this.updateBackgroundColor(['#cbcbcb','#ffffff','#cbcbcb'])
         this.updateInputFields();
     }
 
     advanceToPanel3 = () => {
-        this.updatePanelFlex([1, 1, 10]);
+        this.updatePanelFlex([1, 1, 20]);
         this.toggleDisplay(['none', 'none', 'block']);
+        this.updateBackgroundColor(['#f2f2f2','#f2f2f2','#ffffff'])
         this.fetchSentimentData();
+        this.loadingCircle()
+    }
+
+    updateBackgroundColor(backgroundColors) {
+        this.panelElements.forEach((panel, index) => {
+            if (panel) panel.style.backgroundColor = backgroundColors[index];
+        });
     }
 
     updatePanelFlex(flexValues) {
@@ -156,8 +165,8 @@ class LyricalNegativityUI {
 
         // Set the dimensions and margins of the graph
         const margin = {top: 30, right: 30, bottom: 70, left: 60},
-            width = 460 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+            width = 300 - margin.left - margin.right,
+            height = 250 - margin.top - margin.bottom;
 
         // Append the svg object to the div called 'visualizationContainer'
         const svg = d3.select(visContainer).append("svg")
@@ -194,11 +203,27 @@ class LyricalNegativityUI {
             .attr("y", d => y(d.results[0].probabilities["1"]))
             .attr("width", x.bandwidth())
             .attr("height", d => height - y(d.results[0].probabilities["1"]))
-            .attr("fill", "#69b3a2");
+            .attr("fill", "#E71D36");
+    }
+
+    loadingCircle() {
+        this.loadingElements = ['load-cir1', 'load-cir2','load-cir3','load-cir4', 'load-cir5', 'load-cir6'].map(id => document.getElementById(id))
+        for (let i = 0; i < this.loadingElements.length; i++) {
+            this.loadingElements[i].style.width += '20px'
+            this.loadingElements[i].style.height += '20px'
+            this.loadingElements[i].style.backgroundColor = 'grey'
+            this.loadingElements[i].style.position = 'absolute'
+
+
+
+
+            console.log(this.loadingElements[i])
+        }
     }
 }
 
 const lyricalNegativityUI = new LyricalNegativityUI();
+
 
 
 
