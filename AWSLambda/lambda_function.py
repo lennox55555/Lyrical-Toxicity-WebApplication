@@ -4,6 +4,7 @@ import lyricsgenius as lg
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import re
+import random
 
 
 def lambda_handler(event, context):
@@ -147,36 +148,30 @@ def artistSentiment(artist):
 
     # Fetch artist's information from Spotify
     results = sp.search(q=f"artist:{artist}", type='artist')
-    if results['artists']['items']:
-        artist_id = results['artists']['items'][0]['id']
-    else:
+    if not results['artists']['items']:
         return "Artist not found"
-
-    all_lyrics = ""
     
-    # Function to process albums and singles
-    def process_albums(albums):
-        nonlocal all_lyrics
+    artist_id = results['artists']['items'][0]['id']
+    all_tracks = []
+
+    # Collect songs from albums and singles
+    for album_type in ['album', 'single']:
+        albums = sp.artist_albums(artist_id, album_type=album_type, limit=50)['items']
         for album in albums:
             album_id = album['id']
             album_tracks = sp.album_tracks(album_id)
-            songs = [track['name'] for track in album_tracks['items']]
+            all_tracks.extend([(track['name'], album['name']) for track in album_tracks['items']])
 
-            # Fetch and concatenate lyrics for each song
-            for song_title in songs:
-                song = genius.search_song(song_title, artist)
-                if song:
-                    all_lyrics += f"\n{song_title}\n{song.lyrics}\n"
-                else:
-                    all_lyrics += f"\n{song_title}\nLyrics not found\n"
+    # Select 20 random songs
+    selected_tracks = random.sample(all_tracks, min(20, len(all_tracks)))
 
-    # Fetch and process albums
-    albums = sp.artist_albums(artist_id, album_type='album')['items']
-    process_albums(albums)
-
-    # Fetch and process singles
-    singles = sp.artist_albums(artist_id, album_type='single')['items']
-    process_albums(singles)
+    all_lyrics = ""
+    for song_title, _ in selected_tracks:
+        song = genius.search_song(song_title, artist)
+        if song:
+            all_lyrics += f"\n{song_title}\n{song.lyrics}\n"
+        else:
+            all_lyrics += f"\n{song_title}\nLyrics not found\n"
 
     return all_lyrics.strip()
 
