@@ -1,6 +1,8 @@
+
 class LyricalNegativityUI {
     constructor() {
         this.setupUI();
+        this.lyricalNegativityVisualizations = new LyricalNegativityVisualizations()
     }
 
     setupUI() {
@@ -21,7 +23,7 @@ class LyricalNegativityUI {
         this.toggleDisplay(['none', 'none', 'block']);
         this.updateBackgroundColor(['#f2f2f2','#f2f2f2','#ffffff'])
         this.fetchSentimentData();
-        this.loadingCircle()
+
     }
 
     updateBackgroundColor(backgroundColors) {
@@ -63,25 +65,22 @@ class LyricalNegativityUI {
 
     getInputFieldsHTML(...fields) {
         return fields.map(field => `
-            <label for="${field}">${this.capitalizeFirstLetter(field)}:</label>
-            <input type="text" id="${field}" name="${field}" placeholder="Enter ${field} name">
-            <br>
-        `).join('');
+        <input type="text" id="${field}-input" name="${field}" placeholder="Enter ${field} name" class="${field}-input">
+        <br>
+    `).join('');
     }
-
-    capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
 
     fetchSentimentData() {
         const func = document.getElementById('dropdown').value;
         const apiUrlBase = 'https://yajjcjryrg7vfihndc4vxv5hve0pljlx.lambda-url.us-east-1.on.aws/songWokeApi';
         let apiUrl = `${apiUrlBase}?func=${func}`;
 
-        const artist = document.getElementById('artist').value;
+        const artistElement = document.getElementById('artist-input');
+        const artist = artistElement ? artistElement.value : '';
+
         if (func !== 'artistSentiment') {
-            const item = document.getElementById(func.slice(0, -9)).value; // 'song' or 'album'
+            const itemElement = document.getElementById(`${func.slice(0, -9)}-input`); // 'song' or 'album'
+            const item = itemElement ? itemElement.value : '';
             apiUrl += `&${func.slice(0, -9)}=${item}`;
         }
         apiUrl += `&artist=${artist}`;
@@ -122,7 +121,8 @@ class LyricalNegativityUI {
 
             model.classify(sentences).then(predictions => {
                 console.log(predictions);
-                lyricalNegativityUI.createVisualization(predictions);
+                this.lyricalNegativityVisualizations.createBarchart(predictions)
+
             });
         });
     }
@@ -136,7 +136,8 @@ class LyricalNegativityUI {
 
             model.classify(sentences).then(predictions => {
                 console.log(predictions);
-                lyricalNegativityUI.createVisualization(predictions);
+                this.lyricalNegativityVisualizations.createBarchart(predictions)
+
             });
         });
     }
@@ -150,7 +151,7 @@ class LyricalNegativityUI {
 
             model.classify(sentences).then(predictions => {
                 console.log(predictions);
-                lyricalNegativityUI.createVisualization(predictions);
+                this.lyricalNegativityVisualizations.createBarchart(predictions)
             });
         });
     }
@@ -158,72 +159,4 @@ class LyricalNegativityUI {
         location.reload();
     }
 
-    createVisualization(predictions) {
-        // Clear previous visualization if any
-        const visContainer = document.getElementById('visualizationContainer');
-        visContainer.innerHTML = '';
-
-        // Set the dimensions and margins of the graph
-        const margin = {top: 30, right: 30, bottom: 70, left: 60},
-            width = 300 - margin.left - margin.right,
-            height = 250 - margin.top - margin.bottom;
-
-        // Append the svg object to the div called 'visualizationContainer'
-        const svg = d3.select(visContainer).append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        // X axis
-        const x = d3.scaleBand()
-            .range([0, width])
-            .domain(predictions.map(d => d.label))
-            .padding(0.2);
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .attr("transform", "translate(-10,0)rotate(-45)")
-            .style("text-anchor", "end");
-
-        // Add Y axis
-        const y = d3.scaleLinear()
-            .domain([0, 1])
-            .range([height, 0]);
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        // Bars
-        svg.selectAll("mybar")
-            .data(predictions)
-            .enter()
-            .append("rect")
-            .attr("x", d => x(d.label))
-            .attr("y", d => y(d.results[0].probabilities["1"]))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.results[0].probabilities["1"]))
-            .attr("fill", "#E71D36");
-    }
-
-    loadingCircle() {
-        this.loadingElements = ['load-cir1', 'load-cir2','load-cir3','load-cir4', 'load-cir5', 'load-cir6'].map(id => document.getElementById(id))
-        for (let i = 0; i < this.loadingElements.length; i++) {
-            this.loadingElements[i].style.width += '20px'
-            this.loadingElements[i].style.height += '20px'
-            this.loadingElements[i].style.backgroundColor = 'grey'
-            this.loadingElements[i].style.position = 'absolute'
-
-
-
-
-            console.log(this.loadingElements[i])
-        }
-    }
 }
-
-const lyricalNegativityUI = new LyricalNegativityUI();
-
-
-
-
