@@ -2,41 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expand Sections on Interaction</title>
+    <title>Title</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
 </head>
 <body>
-<div class="container">
-    <div class="section request" id="requestSection">
-        <h2>Step 1 (Choose a Request)</h2>
-        <form id="myForm">
-            <select name="dropdown" id="dropdown" onchange="selectOption()">
-                <option value="songSentiment">Song Sentiment</option>
-                <option value="albumSentiment">Album Sentiment</option>
-                <option value="artistSentiment">Artist Sentiment</option>
-            </select>
-            <input id="enter" type="submit" value="Next Step" onclick="expandSection('parameters'); selectOption()">
-        </form>
-    </div>
-    <div class="section parameters">
-        <h2>Step 2 (Insert Parameters)</h2>
-        <div id="inputFields"></div>
-        <button onclick="expandSection('result'); apiRequest()">Get Results</button>
+<div id="application">
+    <div id="panel1">
+        <div id="ctn1">
+            <div class="panel-intro">
+                <div id="title-background"><h1>Lyrical Toxicity</h1></div>
+                <h3>Discover the impact of your music with our unique web application designed to explore the toxicity levels in songs, albums, and artists.</h3>
+            </div>
+            <form id="myForm">
+                <select name="dropdown" id="dropdown">
+                    <option value="songSentiment">Song Toxicity Analysis</option>
+                    <option value="albumSentiment">Album Toxicity Analysis</option>
+                    <option value="artistSentiment">Artist Toxicity Analysis</option>
+                </select>
+            </form>
+            <button id="nextButton">Next Section</button>
 
-
-    </div>
-    <div class="section result">
-        <h2>Step 3 (Result)</h2>
-        <h1 id="title"></h1>
-        <h2 id="subtitle"></h2>
-        <p id="body"></p>
-        <div id="songList">
         </div>
-        <div id="image-container"></div>
-        <button onclick="refreshPage()">Refresh Page</button>
+    </div>
+    <div id="panel2">
+        <div id="ctn2">
+            <div class="panel-intro">
+              <h3>Enter a song and artist to get started</h3>
+            </div>
+            <div id="inputFields"></div>
+            <button onclick="lyricalNegativityUI.advanceToPanel3()">Next Section</button>
+        </div>
+    </div>
+    <div id="panel3">
+        <div id="ctn3">
+            <div id="row-flex">
+                <div class="panel-intro">
+
+                </div>
+                <div id="viz-1-ctn">
+                    <div id="visualizationContainer"></div>
+                </div>
+                <div id="viz-2-ctn">
+
+                </div>
+                <div id="viz-3-ctn">
+
+                </div>
+            </div>
+            <button onclick="lyricalNegativityUI.refreshPage()">Refresh</button>
+
+        </div>
     </div>
 </div>
-<script src="app.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+<script src="lyricalNegativity-UI.js"></script>
+<script src="lyricalNegativity-Visualizations.js"></script>
+<script src="lyricalNegativity-main.js"></script>
 </body>
 </html>
