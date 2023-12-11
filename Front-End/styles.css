@@ -99,6 +99,7 @@ body {
     width: 25vw;
     height: 30vh;
     border-radius: 3rem;
+    margin-top: 2rem;
 }
 
 #viz-2-ctn {
@@ -106,6 +107,7 @@ body {
     width: 25vw;
     height: 30vh;
     border-radius: 3rem;
+    margin-top: 2rem;
 }
 
 #viz-3-ctn {
@@ -113,6 +115,7 @@ body {
     width: 25vw;
     height: 30vh;
     border-radius: 3rem;
+    margin-top: 2rem;
 }
 
 #row-flex {
@@ -140,4 +143,37 @@ body {
     flex-direction: column;
 }
 
+.button {
+    width: 8rem;
+    height: 2rem;
+    border-radius: 10rem;
+    background-color: #254441;
+    border: none;
+    color: white;
+    font-weight: bold;
+    display: block;
+    margin-top: 2rem;
 
+}
+
+.button:hover {
+    background-color: #81A19E;
+}
+
+#refresh {
+    width: 8rem;
+    height: 2rem;
+    border-radius: 10rem;
+    background-color: #254441;
+    border: none;
+    color: white;
+    font-weight: bold;
+    display: block;
+    margin-top: 10rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#refresh:hover {
+    background-color: #81A19E;
+}
