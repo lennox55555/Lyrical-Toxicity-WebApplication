@@ -105,6 +105,7 @@ class LyricalNegativityUI {
             songSentiment: () => this.getValidSongSentiment(data),
             albumSentiment: () => this.getValidAlbumSentiment(data),
             artistSentiment: () => this.getValidArtistSentiment(data),
+
         };
 
         if (handlerMap[func]) {
@@ -112,17 +113,31 @@ class LyricalNegativityUI {
         }
     }
 
+    countWords(str) {
+        const words = str.split(" ");
+        const totalWords = words.length;
+
+        const normalizedWords = words.map(word => word.toLowerCase());
+        const uniqueWords = new Set(normalizedWords);
+        const uniqueWordCount = uniqueWords.size;
+
+        return [
+            { label: "Unique Words", value: uniqueWordCount },
+            { label: "Total Words", value: totalWords }
+        ];
+    }
+
+
     getValidSongSentiment(data) {
-        console.log(data);
         const threshold = 0.7;
 
         toxicity.load(threshold).then(model => {
             let sentences = data;
 
             model.classify(sentences).then(predictions => {
-                console.log(predictions);
                 this.lyricalNegativityVisualizations.createBarchart(predictions)
-
+                this.lyricalNegativityVisualizations.createPieChart(this.countWords(data))
+                this.lyricalNegativityVisualizations.createMostCommonWord(data)
             });
         });
     }
@@ -137,7 +152,8 @@ class LyricalNegativityUI {
             model.classify(sentences).then(predictions => {
                 console.log(predictions);
                 this.lyricalNegativityVisualizations.createBarchart(predictions)
-
+                this.lyricalNegativityVisualizations.createPieChart(this.countWords(data))
+                this.lyricalNegativityVisualizations.createMostCommonWord(data)
             });
         });
     }
@@ -152,6 +168,8 @@ class LyricalNegativityUI {
             model.classify(sentences).then(predictions => {
                 console.log(predictions);
                 this.lyricalNegativityVisualizations.createBarchart(predictions)
+                tthis.lyricalNegativityVisualizations.createPieChart(this.countWords(data))
+                this.lyricalNegativityVisualizations.createMostCommonWord(data)
             });
         });
     }
