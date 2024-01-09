@@ -1,6 +1,6 @@
 # Music Sentiment Web Application
 
-<img src="https://lennoxanderson.com/portfolio/MusicApp.png" />
+<img src="https://lennoxanderson.com/portfolio/musicapp.png" />
 
 #### The web application is a user-friendly and intuitive platform that enables users to interact with a specialized API, offering three distinct requests for retrieving and displaying valuable information directly on the user interface. This application is part of a broader project aimed at providing users with comprehensive access to song-related data and artist insights.
 
